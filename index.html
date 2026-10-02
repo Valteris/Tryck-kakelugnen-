@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.9">
+    <title>Kakelugn - Sätt fingret! av Valter 261002</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+            text-align: center;
+            margin: 0;
+            padding: 10px;
+        }
+        header {
+            margin-bottom: 10px;
+        }
+        h1 {
+            font-size: 1.45rem;
+            margin: 0 0 4px 0;
+            color: #1a1a1a;
+        }
+        .author {
+            font-size: 1.0rem;
+            color: #c0392b;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        p {
+            font-size: 0.85rem;
+            color: #555;
+            margin: 0 0 12px 0;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #e9ecef;
+        }
+        #bg-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        /* Målzoner på bilden */
+        .dropzone {
+            position: absolute;
+            border: 6px dashed rgba(46, 167, 69, 0.8);
+            background: rgba(255, 255, 255, 0.25);
+            transform: translate(-50%, -50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+        /* När en zon har fyllts i korrekt */
+        .dropzone.filled {
+            border: none;
+            background: transparent;
+        }
+        /* Förteckning / ledtexter */
+        #legend {
+            background: #fff;
+            padding: 10px;
+            margin: 12px auto;
+            max-width: 480px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        #legend h3 {
+            margin: 0 0 6px 0;
+            font-size: 0.9rem;
+            color: #333;
+            text-align: center;
+        }
+        .legend-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+        /* Siffror som ska väljas */
+        #numbers-container {
+            margin: 12px auto;
+            max-width: 480px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            padding-bottom: 20px;
+        }
+        .number-item {
+            width: 36px;
+            height: 36px;
+            background-color: #ffc107;
+            color: #000;
+            font-weight: bold;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.15s, background-color 0.2s, color 0.2s;
+        }
+        .number-item.selected {
+            transform: scale(1.15);
+            border: 2px solid #000;
+            background-color: #e0a800;
+        }
+        .number-item.correct {
+            background-color: #28a745;
+            color: white;
+            cursor: default;
+            box-shadow: none;
+            transform: scale(1);
+        }
+        .number-item.incorrect {
+            background-color: #dc3545;
+            color: white;
+        }
+        #success-message {
+            display: none;
+            font-size: 1rem;
+            color: #28a745;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Kakelugn - Tryck på gul->cirkel!</h1>
+        <div class="author">Valter Isander 261002</div>
+        <p>Tryck på en siffra och sedan på rätt plats i bilden!</p>
+    </header>
+
+    <div id="game-container">
+        <!-- Använder relativ sökväg i samma mapp -->
+        <img id="bg-image" src="Kakelugn.jpeg" alt="Kakelugn skiss" onerror="this.onerror=null; this.src='Kakelugn.jpeg';">
+        
+        <!-- Målzoner (1 till 9) -->🛟
+        <div class="dropzone" data-id="1" style="top: 50%; left: 15%;"></div>
+        <div class="dropzone" data-id="2" style="top: 85%; left: 30%;"></div>
+        <div class="dropzone" data-id="3" style="top: 35%; left: 63%;"></div>
+        <div class="dropzone" data-id="4" style="top: 45%; left: 50%;"></div>
+        <div class="dropzone" data-id="5" style="top: 65%; left: 55%;"></div>
+        <div class="dropzone" data-id="6" style="top: 48%; left: 30%;"></div>
+        <div class="dropzone" data-id="7" style="top: 20%; left: 4%;"></div>
+        <div class="dropzone" data-id="8" style="top: 28%; left: 25%;"></div>
+        <div class="dropzone" data-id="9" style="top: 35%; left: 8%;"></div>
+    </div>
+
+    <div id="success-message">Bra jobbat! Alla delar är på rätt plats! 🎉</div>
+
+    <div id="legend">
+        <h3>Förklaringar:</h3>
+        <div class="legend-grid">
+            <div><b>1:</b> Tegel</div>
+            <div><b>6:</b> Bakvägg</div>
+            <div><b>2:</b> Kakel</div>
+            <div><b>7:</b> Murstock</div>
+            <div><b>3:</b> Fyllningar</div>
+            <div><b>8:</b> Blind kanal</div>
+            <div><b>4:</b> Skiljetungor</div>
+            <div><b>9:</b> Luftspalt</div>
+            <div><b>5:</b> Sköld</div>
+        </div>
+    </div>
+
+    <div id="numbers-container">
+        <div class="number-item" id="num-1" data-val="1">1</div>
+        <div class="number-item" id="num-2" data-val="2">2</div>
+        <div class="number-item" id="num-3" data-val="3">3</div>
+        <div class="number-item" id="num-4" data-val="4">4</div>
+        <div class="number-item" id="num-5" data-val="5">5</div>
+        <div class="number-item" id="num-6" data-val="6">6</div>
+        <div class="number-item" id="num-7" data-val="7">7</div>
+        <div class="number-item" id="num-8" data-val="8">8</div>
+        <div class="number-item" id="num-9" data-val="9">9</div>
+    </div>
+
+    <script>
+        let selectedNumberElement = null;
+        let correctCount = 0;
+
+        const numbers = document.querySelectorAll('.number-item');
+        const dropzones = document.querySelectorAll('.dropzone');
+        const successMessage = document.getElementById('success-message');
+
+        // Hantera klick på siffror
+        numbers.forEach(num => {
+            num.addEventListener('click', () => {
+                if (num.classList.contains('correct')) return;
+                
+                numbers.forEach(n => n.classList.remove('selected'));
+                selectedNumberElement = num;
+                num.classList.add('selected');
+            });
+        });
+
+        // Hantera klick på målzoner i bilden
+        dropzones.forEach(zone => {
+            zone.addEventListener('click', () => {
+                if (!selectedNumberElement) return;
+
+                const targetId = zone.getAttribute('data-id');
+                const selectedVal = selectedNumberElement.getAttribute('data-val');
+
+                if (selectedVal === targetId) {
+                    // Rätt plats
+                    selectedNumberElement.classList.add('correct');
+                    selectedNumberElement.classList.remove('selected', 'incorrect');
+                    zone.classList.add('filled');
+                    zone.appendChild(selectedNumberElement);
+                    selectedNumberElement = null;
+                    correctCount++;
+
+                    // Kontrollera om alla är klara
+                    if (correctCount === 9) {
+                        successMessage.style.display = 'block';
+                    }
+                } else {
+                    // Fel plats (lyser rött kortvarigt)
+                    selectedNumberElement.classList.add('incorrect');
+                    setTimeout(() => {
+                        selectedNumberElement.classList.remove('incorrect');
+                    }, 3000);
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
